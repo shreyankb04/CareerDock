@@ -1,0 +1,16 @@
+const express = require('express');
+const app = express();//Create server instance
+const cookieParser = require('cookie-parser');//Import cookie parser middleware
+
+
+app.use(express.json());//Middleware to parse JSON request bodies
+app.use(cookieParser());//Middleware to parse cookies
+
+
+// require all the routes here
+const authRouter = require('./routes/auth.routes');//Import auth routes
+
+// using all the routes here
+app.use("/api/auth", authRouter);//Mount auth routes at /api/auth
+
+module.exports = app;
