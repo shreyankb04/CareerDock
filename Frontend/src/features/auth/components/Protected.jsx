@@ -1,4 +1,3 @@
-import React from 'react'
 import { useAuth } from "../hooks/useAuth"
 import { Navigate } from "react-router"
 
@@ -11,7 +10,7 @@ const Protected = ({children}) => {
 }
 
 if(!user){
-    return <Navigate to="/login"/>
+    return <Navigate to="/login" replace />
 }
 return children
 }

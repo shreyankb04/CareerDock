@@ -6,26 +6,27 @@ main{
     justify-content: center;
     align-items: center;
 
+
     .form-container{
-        min-width:350px;
+        min-width: 350px;
 
         display: flex;
         flex-direction: column;
         gap: 1rem;
-
     }
 
     form{
-        display:flex;
+        display: flex;
         flex-direction: column;
         gap: 0.75rem;
     }
 
     .input-group{
-        display:flex;
+        display: flex;
         flex-direction: column;
 
         gap: 0.5rem;
+
 
         input{
             border: none;
@@ -37,8 +38,7 @@ main{
     }
 
     a{
-        color:#e1034d;
+        color: #e1034d;
         text-decoration: none;
-
     }
 }
