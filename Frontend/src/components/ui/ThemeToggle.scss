@@ -1,0 +1,55 @@
+@use "../../styles/tokens" as t;
+
+.theme-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    min-height: 0;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-glass-strong);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @include t.focus-ring;
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        z-index: 1;
+
+        &--moon {
+            color: var(--color-violet-soft);
+        }
+
+        &--sun {
+            color: #f5c451;
+        }
+    }
+
+    &__thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--grad-primary);
+        box-shadow: 0 2px 8px rgba(255, 62, 165, 0.5);
+        transition: transform var(--duration-base) t.$ease-out;
+    }
+
+    &[aria-checked="true"] .theme-toggle__thumb {
+        transform: translateX(24px);
+    }
+}
+
+@include t.reduced-motion {
+    .theme-toggle__thumb {
+        transition: none;
+    }
+}

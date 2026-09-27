@@ -2,14 +2,36 @@ import { useState, useRef } from 'react'
 import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
+import { Briefcase, User, UploadCloud, Info, Sparkles, Brain, Code2, Route } from 'lucide-react'
+import GradientBadge from '../../../components/ui/GradientBadge.jsx'
+import GlassCard from '../../../components/ui/GlassCard.jsx'
+
+const FEATURES = [
+    {
+        icon: Brain,
+        title: 'Psychological Profiling',
+        description: 'Our AI analyzes interviewer archetypes and predicts behavioral questions based on corporate culture.',
+    },
+    {
+        icon: Code2,
+        title: 'Technical Deep-Dive',
+        description: 'Get custom-tailored coding and architectural challenges specific to the tech stack in the job.',
+    },
+    {
+        icon: Route,
+        title: 'Dynamic Roadmaps',
+        description: 'Receive a step-by-step preparation timeline from now until your scheduled interview date.',
+    },
+]
 
 const Home = () => {
 
-    const { loading, generateReport,reports } = useInterview()
+    const { loading, generateReport, reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
-    const [resumeFile, setResumeFile] = useState(null)
-    const [resumeName, setResumeName] = useState("")
+    const [ resumeFile, setResumeFile ] = useState(null)
+    const [ resumeName, setResumeName ] = useState("")
+    const [ isDragging, setIsDragging ] = useState(false)
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
@@ -34,33 +56,64 @@ const Home = () => {
         setResumeName(file?.name ?? "")
     }
 
+    const handleDrop = (event) => {
+        event.preventDefault()
+        setIsDragging(false)
+        const file = event.dataTransfer.files?.[0] ?? null
+        if (file) {
+            setResumeFile(file)
+            setResumeName(file.name)
+        }
+    }
+
+    const formatFileSize = (bytes) => {
+        if (!bytes) return ""
+        const kb = bytes / 1024
+        return kb < 1024 ? `${kb.toFixed(0)} KB` : `${(kb / 1024).toFixed(1)} MB`
+    }
+
     if (loading) {
         return (
-            <main className='loading-screen'>
+            <main className='cd-loading-screen'>
+                <span className='cd-spinner' />
                 <h1>Loading your interview plan...</h1>
             </main>
         )
     }
 
     return (
-        <div className='home-page'>
+        <main className='home-page'>
 
-            {/* Page Header */}
-            <header className='page-header'>
-                <h1>Create Your Custom <span className='highlight'>Interview Plan</span></h1>
-                <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
-            </header>
+            {/* Animated background blobs */}
+            <div className='hero-glow hero-glow--one' aria-hidden='true' />
+            <div className='hero-glow hero-glow--two' aria-hidden='true' />
+
+            {/* Hero Section */}
+            <section className='hero'>
+                <h1 className='hero__title'>Master Your Next Interview <span className='highlight'>with AI</span></h1>
+                <p className='hero__subtitle'>
+                    Tailored strategy engineered for elite professionals. Let CareerDock analyze the job requirements
+                    and your unique profile to build a winning formula.
+                </p>
+            </section>
 
             {/* Main Card */}
             <div className='interview-card'>
+
+                <div className='interview-card__intro'>
+                    <div>
+                        <h2>Create Your Custom <span className='highlight'>Interview Plan</span></h2>
+                        <p>Ready to dock. Input your parameters below.</p>
+                    </div>
+                    <GradientBadge icon={<Sparkles size={12} />}>AI Engine Ready</GradientBadge>
+                </div>
+
                 <div className='interview-card__body'>
 
                     {/* Left Panel - Job Description */}
                     <div className='panel panel--left'>
                         <div className='panel__header'>
-                            <span className='panel__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
-                            </span>
+                            <span className='panel__icon'><Briefcase size={18} /></span>
                             <h2>Target Job Description</h2>
                             <span className='badge badge--required'>Required</span>
                         </div>
@@ -80,9 +133,7 @@ const Home = () => {
                     {/* Right Panel - Profile */}
                     <div className='panel panel--right'>
                         <div className='panel__header'>
-                            <span className='panel__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                            </span>
+                            <span className='panel__icon'><User size={18} /></span>
                             <h2>Your Profile</h2>
                         </div>
 
@@ -92,14 +143,23 @@ const Home = () => {
                                 Upload Resume
                                 <span className='badge badge--best'>Best Results</span>
                             </label>
-                            <label className='dropzone' htmlFor='resume'>
-                                <span className='dropzone__icon'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
-                                </span>
+                            <label
+                                className={`dropzone ${isDragging ? 'dropzone--active' : ''}`}
+                                htmlFor='resume'
+                                onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+                                onDragLeave={() => setIsDragging(false)}
+                                onDrop={handleDrop}
+                            >
+                                <span className='dropzone__icon'><UploadCloud size={28} /></span>
                                 <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
                                 <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
                                 <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' onChange={handleFileChange} />
-                                {resumeName && <p className='dropzone__file'>{resumeName}</p>}
+                                {resumeName && (
+                                    <span className='dropzone__file'>
+                                        {resumeName}
+                                        {resumeFile?.size ? <span className='dropzone__file-size'>{formatFileSize(resumeFile.size)}</span> : null}
+                                    </span>
+                                )}
                             </label>
                         </div>
 
@@ -120,9 +180,7 @@ const Home = () => {
 
                         {/* Info Box */}
                         <div className='info-box'>
-                            <span className='info-box__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" stroke="#1a1f27" strokeWidth="2" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="#1a1f27" strokeWidth="2" /></svg>
-                            </span>
+                            <span className='info-box__icon'><Info size={16} /></span>
                             <p>Either a <strong>Resume</strong> or a <strong>Self Description</strong> is required to generate a personalized plan.</p>
                         </div>
                     </div>
@@ -133,8 +191,8 @@ const Home = () => {
                     <span className='footer-info'>AI-Powered Strategy Generation &bull; Approx 30s</span>
                     <button
                         onClick={handleGenerateReport}
-                        className='generate-btn'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" /></svg>
+                        className='button primary-button generate-btn'>
+                        <Sparkles size={16} />
                         Generate My Interview Strategy
                     </button>
                 </div>
@@ -156,13 +214,17 @@ const Home = () => {
                 </section>
             )}
 
-            {/* Page Footer */}
-            <footer className='page-footer'>
-                <a href='#'>Privacy Policy</a>
-                <a href='#'>Terms of Service</a>
-                <a href='#'>Help Center</a>
-            </footer>
-        </div>
+            {/* Feature Cards */}
+            <section className='feature-grid'>
+                {FEATURES.map(({ icon: Icon, title, description }) => (
+                    <GlassCard key={title} hover className='feature-card'>
+                        <span className='feature-card__icon'><Icon size={22} /></span>
+                        <h3>{title}</h3>
+                        <p>{description}</p>
+                    </GlassCard>
+                ))}
+            </section>
+        </main>
     )
 }
 

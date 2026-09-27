@@ -1,0 +1,213 @@
+@use "../../styles/tokens" as t;
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--color-border);
+
+    &__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 68px;
+    }
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-decoration: none;
+        color: var(--color-text-primary);
+        flex-shrink: 0;
+    }
+
+    &__brand-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: var(--radius-sm);
+        background: var(--grad-primary);
+        color: #fff;
+    }
+
+    &__links {
+        display: none;
+        align-items: center;
+        gap: 1.75rem;
+    }
+
+    &__link {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color var(--duration-fast) ease;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--color-text-primary);
+        }
+    }
+
+    &__actions {
+        display: none;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    &__profile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--color-glass-strong);
+        border: 1px solid var(--color-border-strong);
+        color: var(--color-text-primary);
+        padding: 0.45rem 0.9rem;
+        border-radius: var(--radius-pill);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 44px;
+        transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+
+        @include t.focus-ring;
+
+        &:hover {
+            border-color: var(--color-pink);
+            color: var(--color-pink);
+        }
+    }
+
+    &__signin {
+        padding-block: 0.55rem;
+        padding-inline: 1.25rem;
+        font-size: 0.85rem;
+    }
+
+    &__hamburger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm);
+        background: var(--color-glass-strong);
+        border: 1px solid var(--color-border);
+        color: var(--color-text-primary);
+        cursor: pointer;
+
+        @include t.focus-ring;
+    }
+
+    @include t.desktop-up {
+        &__links--desktop {
+            display: flex;
+        }
+
+        &__actions--desktop {
+            display: flex;
+        }
+
+        &__hamburger {
+            display: none;
+        }
+    }
+
+    // ── Mobile drawer ─────────────────────────────────────────────────────────
+    &__drawer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--duration-base) ease;
+        z-index: 90;
+
+        &--open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
+    &__drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(78vw, 320px);
+        background: var(--color-bg-elevated);
+        border-left: 1px solid var(--color-border);
+        z-index: 95;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 5.5rem 1.5rem 2rem;
+        transform: translateX(100%);
+        transition: transform var(--duration-base) t.$ease-out;
+
+        &--open {
+            transform: translateX(0);
+        }
+
+        @include t.desktop-up {
+            display: none;
+        }
+    }
+
+    &__drawer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    &__drawer-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 0.75rem;
+        border-radius: var(--radius-sm);
+        color: var(--color-text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        min-height: 44px;
+        transition: background var(--duration-fast) ease;
+
+        &:hover {
+            background: var(--color-glass-strong);
+        }
+    }
+
+    &__drawer-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    &__drawer-theme {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+        padding-inline: 0.75rem;
+    }
+
+    &__drawer-btn {
+        width: 100%;
+    }
+}
+
+@include t.reduced-motion {
+    .navbar__drawer,
+    .navbar__drawer-overlay {
+        transition: none;
+    }
+}

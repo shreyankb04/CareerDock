@@ -1,0 +1,142 @@
+@use "../styles/tokens" as t;
+
+.help-center {
+    padding-block: 3rem 4rem;
+
+    &__faq {
+        margin-top: 2.5rem;
+    }
+
+    &__faq-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--color-text-primary);
+    }
+}
+
+.support-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm);
+        background: var(--grad-primary-soft);
+        color: var(--color-pink);
+    }
+
+    h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    p {
+        color: var(--color-text-secondary);
+        font-size: 0.9rem;
+    }
+
+    &__cta {
+        text-decoration: none;
+        width: 100%;
+        justify-content: center;
+    }
+
+    @include t.tablet-up {
+        flex-direction: row;
+        align-items: center;
+
+        &__text {
+            flex: 1;
+        }
+
+        &__cta {
+            width: auto;
+        }
+    }
+}
+
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.faq-item {
+    @include t.glass-surface;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+
+    &__trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.1rem 1.25rem;
+        background: transparent;
+        border: none;
+        color: var(--color-text-primary);
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        min-height: 44px;
+
+        @include t.focus-ring;
+    }
+
+    &__chevron {
+        flex-shrink: 0;
+        transition: transform var(--duration-base) t.$ease-out;
+        color: var(--color-text-muted);
+    }
+
+    &__panel {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows var(--duration-base) t.$ease-out;
+
+        p {
+            overflow: hidden;
+            min-height: 0;
+            padding: 0 1.25rem;
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: var(--color-text-secondary);
+        }
+    }
+
+    &--open {
+        border-color: var(--color-border-strong);
+
+        .faq-item__chevron {
+            transform: rotate(180deg);
+            color: var(--color-pink);
+        }
+
+        .faq-item__panel {
+            grid-template-rows: 1fr;
+
+            p {
+                padding-bottom: 1.1rem;
+            }
+        }
+    }
+}
+
+@include t.reduced-motion {
+    .faq-item__chevron,
+    .faq-item__panel {
+        transition: none;
+    }
+}

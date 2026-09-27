@@ -1,0 +1,213 @@
+@use "../../styles/tokens" as t;
+
+// ── GlassCard ─────────────────────────────────────────────────────────────────
+.glass-card {
+    @include t.glass-surface;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--duration-base) t.$ease-out, box-shadow var(--duration-base) t.$ease-out, border-color var(--duration-base) ease;
+
+    &--hover {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            transform: translateY(-4px);
+            border-color: var(--color-border-strong);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        &:active {
+            transform: translateY(-1px) scale(0.99);
+        }
+    }
+}
+
+@include t.reduced-motion {
+    .glass-card {
+        transition: none;
+        &--hover:hover {
+            transform: none;
+        }
+    }
+}
+
+// ── SectionTitle ──────────────────────────────────────────────────────────────
+.section-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    &--center {
+        align-items: center;
+        text-align: center;
+    }
+
+    &__eyebrow {
+        display: inline-block;
+        width: fit-content;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-pink);
+    }
+
+    &__title {
+        font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+        font-weight: 800;
+        line-height: 1.15;
+        color: var(--color-text-primary);
+    }
+
+    &__subtitle {
+        font-size: 1rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        max-width: 60ch;
+    }
+
+    &--center &__subtitle {
+        max-width: 50ch;
+        margin-inline: auto;
+    }
+}
+
+// ── GradientBadge ─────────────────────────────────────────────────────────────
+.gradient-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+
+    &--brand {
+        background: var(--grad-primary-soft);
+        color: var(--color-pink);
+        border: 1px solid rgba(255, 62, 165, 0.35);
+    }
+
+    &--success {
+        background: rgba(16, 185, 129, 0.14);
+        color: var(--color-success);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    &--warning {
+        background: rgba(245, 158, 11, 0.14);
+        color: var(--color-warning);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    &--error {
+        background: rgba(244, 63, 94, 0.14);
+        color: var(--color-error);
+        border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+// ── FloatingInput ─────────────────────────────────────────────────────────────
+.floating-input {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    input {
+        width: 100%;
+        background: var(--color-glass);
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-sm);
+        color: var(--color-text-primary);
+        padding: 1.3rem 1rem 0.6rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+        outline: none;
+        transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+
+        &:focus {
+            border-color: var(--color-pink);
+            box-shadow: 0 0 0 4px rgba(255, 62, 165, 0.15);
+        }
+    }
+
+    label {
+        position: absolute;
+        left: 1rem;
+        top: 0.9rem;
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        pointer-events: none;
+        transform-origin: left top;
+        transition: transform var(--duration-fast) ease, color var(--duration-fast) ease, top var(--duration-fast) ease;
+    }
+
+    input:focus + label,
+    input:not(:placeholder-shown) + label {
+        top: 0.5rem;
+        transform: scale(0.75);
+        color: var(--color-pink);
+    }
+
+    &--error input {
+        border-color: var(--color-error);
+    }
+
+    &__error {
+        margin-top: 0.35rem;
+        font-size: 0.78rem;
+        color: var(--color-error);
+    }
+}
+
+@include t.reduced-motion {
+    .floating-input label,
+    .floating-input input {
+        transition: none;
+    }
+}
+
+// ── Spinner ───────────────────────────────────────────────────────────────────
+.cd-spinner {
+    width: 1.1em;
+    height: 1.1em;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255, 255, 255, 0.25);
+    border-top-color: currentColor;
+    animation: cd-spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+.cd-loading-screen {
+    min-height: 60vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--color-text-secondary);
+
+    .cd-spinner {
+        width: 2rem;
+        height: 2rem;
+        border-width: 3px;
+        color: var(--color-pink);
+    }
+
+    h1 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+    }
+}

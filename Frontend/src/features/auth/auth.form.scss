@@ -1,44 +1,132 @@
-main{
+@use "../../styles/tokens" as t;
+
+.auth-page {
+    position: relative;
     min-height: 100vh;
     width: 100%;
+    overflow: clip;
 
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 2rem 1.25rem;
+}
 
+.auth-glow {
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.3;
+    pointer-events: none;
+    animation: cd-blob-float 14s ease-in-out infinite;
 
-    .form-container{
-        min-width: 350px;
-
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+    &--one {
+        width: 300px;
+        height: 300px;
+        background: var(--color-pink);
+        top: -60px;
+        left: -60px;
     }
 
-    form{
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
+    &--two {
+        width: 320px;
+        height: 320px;
+        background: var(--color-purple);
+        bottom: -80px;
+        right: -60px;
+        animation-delay: -6s;
+    }
+}
+
+.auth-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    padding: 2.25rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    @include t.tablet-up {
+        padding: 2.75rem;
     }
 
-    .input-group{
-        display: flex;
-        flex-direction: column;
-
+    &__brand {
+        display: inline-flex;
+        align-self: center;
+        align-items: center;
         gap: 0.5rem;
+        font-weight: 800;
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
+    }
 
+    &__brand-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: var(--radius-sm);
+        background: var(--grad-primary);
+        color: #fff;
+    }
 
-        input{
-            border: none;
-            outline: none;
-            padding-inline: 1rem;
-            padding-block: 0.75rem;
-            border-radius: 0.75rem;
+    h1 {
+        font-size: 1.4rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    &__subtitle {
+        text-align: center;
+        color: var(--color-text-secondary);
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+        margin-bottom: 1.5rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.15rem;
+    }
+
+    &__submit {
+        width: 100%;
+        margin-top: 0.35rem;
+    }
+
+    &__spin {
+        animation: cd-spin 0.7s linear infinite;
+    }
+
+    &__switch {
+        text-align: center;
+        margin-top: 1.5rem;
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+
+        a {
+            color: var(--color-pink);
+            text-decoration: none;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
+}
 
-    a{
-        color: #e1034d;
-        text-decoration: none;
+@include t.reduced-motion {
+    .auth-glow {
+        animation: none;
+    }
+
+    .auth-card__spin {
+        animation-duration: 1.2s;
     }
 }

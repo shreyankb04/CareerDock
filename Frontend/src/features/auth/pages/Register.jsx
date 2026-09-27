@@ -1,6 +1,11 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
+import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
+import { Sparkles, Loader2 } from 'lucide-react'
+import GlassCard from '../../../components/ui/GlassCard.jsx'
+import FloatingInput from '../../../components/ui/FloatingInput.jsx'
+import { PrimaryButton } from '../../../components/ui/Button.jsx'
 
 const Register = () => {
 
@@ -9,8 +14,8 @@ const Register = () => {
     const [ email, setEmail ] = useState("")
     const [ password, setPassword ] = useState("")
 
-    const {loading,handleRegister} = useAuth()
-    
+    const { loading, handleRegister } = useAuth()
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         const user = await handleRegister({ username, email, password })
@@ -21,42 +26,53 @@ const Register = () => {
         }
     }
 
-    if (loading) {
-        return (<main><h1>Loading.......</h1></main>)
-    }
-
     return (
-        <main>
-            <div className="form-container">
-                <h1>Register</h1>
+        <main className="auth-page">
+            <div className='auth-glow auth-glow--one' aria-hidden='true' />
+            <div className='auth-glow auth-glow--two' aria-hidden='true' />
+
+            <GlassCard className="auth-card">
+                <div className="auth-card__brand">
+                    <span className="auth-card__brand-icon"><Sparkles size={18} /></span>
+                    CareerDock
+                </div>
+
+                <h1>Create your account</h1>
+                <p className="auth-card__subtitle">Start building AI-tailored interview strategies in minutes.</p>
 
                 <form onSubmit={handleSubmit}>
-
-                    <div className="input-group">
-                        <label htmlFor="username">Username</label>
-                        <input
-                            onChange={(e) => { setUsername(e.target.value) }}
-                            type="text" id="username" name='username' placeholder='Enter username' />
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="email">Email</label>
-                        <input
-                            onChange={(e) => { setEmail(e.target.value) }}
-                            type="email" id="email" name='email' placeholder='Enter email address' />
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            onChange={(e) => { setPassword(e.target.value) }}
-                            type="password" id="password" name='password' placeholder='Enter password' />
-                    </div>
-
-                    <button className='button primary-button' >Register</button>
-
+                    <FloatingInput
+                        id="username"
+                        name="username"
+                        type="text"
+                        label="Username"
+                        onChange={(e) => { setUsername(e.target.value) }}
+                        required
+                    />
+                    <FloatingInput
+                        id="email"
+                        name="email"
+                        type="email"
+                        label="Email address"
+                        onChange={(e) => { setEmail(e.target.value) }}
+                        required
+                    />
+                    <FloatingInput
+                        id="password"
+                        name="password"
+                        type="password"
+                        label="Password"
+                        onChange={(e) => { setPassword(e.target.value) }}
+                        required
+                    />
+                    <PrimaryButton type="submit" disabled={loading} className="auth-card__submit">
+                        {loading ? <Loader2 size={16} className="auth-card__spin" /> : null}
+                        {loading ? "Creating account..." : "Register"}
+                    </PrimaryButton>
                 </form>
 
-                <p>Already have an account? <Link to={"/login"} >Login</Link> </p>
-            </div>
+                <p className="auth-card__switch">Already have an account? <Link to={"/login"}>Login</Link></p>
+            </GlassCard>
         </main>
     )
 }

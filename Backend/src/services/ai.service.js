@@ -51,7 +51,7 @@ async function generateInterviewReport({resume, selfDescription, jobDescription}
 
 const schema = zodToJsonSchema(interviewReportSchema);
 
-console.log(JSON.stringify(schema, null, 2));
+// console.log(JSON.stringify(schema, null, 2));
 
 
 
@@ -63,7 +63,7 @@ const response = await ai.models.generateContent({
         responseSchema: zodToJsonSchema(interviewReportSchema),
     }
 })
-console.log(response.text)
+// console.log(response.text)
 return JSON.parse(response.text)
 
 }

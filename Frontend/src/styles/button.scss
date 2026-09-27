@@ -1,20 +1,62 @@
-.button{
+@use "./tokens" as t;
 
+.button {
     border: none;
     outline: none;
     padding-inline: 1.5rem;
-    padding-block: 0.75rem;
-    border-radius: 1rem;
+    padding-block: 0.85rem;
+    border-radius: var(--radius-pill);
     cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    transition: transform var(--duration-fast) ease, box-shadow var(--duration-base) ease, opacity var(--duration-fast) ease;
 
-    transition: all 0.3s ease-in-out;
+    @include t.focus-ring;
 
-    &.primary-button{
-        background-color: #e1034d;
-        color: white;
+    &.primary-button {
+        background: var(--grad-primary);
+        color: #fff;
+        box-shadow: var(--shadow-glow-pink);
+
+        &:hover {
+            box-shadow: var(--shadow-glow-pink-lg);
+            transform: translateY(-1px);
+        }
     }
 
-    &:active{
-        transform: scale(0.9);
+    &.secondary-button {
+        background: var(--color-glass-strong);
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-border-strong);
+
+        &:hover {
+            border-color: var(--color-pink);
+            color: var(--color-pink);
+        }
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+@include t.reduced-motion {
+    .button {
+        transition: none;
+        &:hover {
+            transform: none;
+        }
     }
 }

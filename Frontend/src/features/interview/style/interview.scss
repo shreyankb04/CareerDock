@@ -1,20 +1,13 @@
 @use "sass:color";
+@use "../../../styles/tokens" as t;
 
-// ── Shared Variables (mirrors home.scss theme) ────────────────────────────────
-$bg-page: #0d1117;
-$bg-card: #161b22;
-$bg-panel: #1c2230;
-$bg-input: #1e2535;
-$border-color: #2a3348;
-$text-primary: #e6edf3;
-$text-muted: #7d8590;
-$accent: #ff2d78;
-$font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-// severity palette
-$severity-high: #ff4d4d;
-$severity-medium: #f5a623;
-$severity-low: #3fb950;
+// Literal hex constants (kept local, not CSS vars) purely so we can use them
+// inside rgba()/color.adjust() below - these mirror the brand + semantic
+// tokens in styles/_tokens.scss and are intentionally constant across themes.
+$accent: #ff3ea5;
+$severity-high: #f43f5e;
+$severity-medium: #f59e0b;
+$severity-low: #10b981;
 
 *::-webkit-scrollbar {
     display: none;
@@ -24,79 +17,94 @@ $severity-low: #3fb950;
 .interview-page {
     width: 100%;
     min-height: 100vh;
-    background-color: $bg-page;
-    color: $text-primary;
-    font-family: $font-stack;
+    color: var(--color-text-primary);
+    font-family: t.$font-stack;
     display: flex;
     align-items: stretch;
-    padding: 1.5rem;
+    padding: 1rem;
     box-sizing: border-box;
+
+    @include t.tablet-up {
+        padding: 1.5rem;
+    }
 }
 
-// ── 3-Column Layout ───────────────────────────────────────────────────────────
+// ── Layout (stacks on mobile, 3 columns from desktop up) ──────────────────────
 .interview-layout {
     display: flex;
+    flex-direction: column;
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    background-color: $bg-card;
-    border: 1px solid $border-color;
-    border-radius: 1rem;
-    justify-content: space-between;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    @include t.desktop-up {
+        flex-direction: row;
+        justify-content: space-between;
+    }
 }
 
 .interview-divider {
-    width: 1px;
-    background-color: $border-color;
+    height: 1px;
+    width: 100%;
+    background-color: var(--color-border);
     flex-shrink: 0;
+
+    @include t.desktop-up {
+        height: auto;
+        width: 1px;
+    }
 }
 
-// ── Left Nav ─────────────────────────────────────────────────────────────────
+// ── Left Nav (horizontal tab bar on mobile, sidebar from desktop up) ──────────
 .interview-nav {
-    width: 220px;
+    width: 100%;
     flex-shrink: 0;
-    padding: 1.75rem 1rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 0.25rem;
+    gap: 1rem;
 
-
-
+    .nav-content {
+        display: flex;
+        flex-direction: row;
+        gap: 0.4rem;
+        overflow-x: auto;
+    }
 
     &__label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: $text-muted;
-        padding: 0 0.75rem;
-        margin-bottom: 0.5rem;
+        display: none;
     }
 
     &__item {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        width: 100%;
-        padding: 0.65rem 0.75rem;
+        gap: 0.5rem;
+        flex-shrink: 0;
+        padding: 0.6rem 0.9rem;
         background: none;
-        border: none;
-        border-radius: 0.5rem;
-        color: $text-muted;
-        font-family: $font-stack;
-        font-size: 0.875rem;
+        border: 1px solid transparent;
+        border-radius: var(--radius-pill);
+        color: var(--color-text-muted);
+        font-family: t.$font-stack;
+        font-size: 0.85rem;
         cursor: pointer;
         text-align: left;
-        transition: background-color 0.15s, color 0.15s;
+        min-height: 44px;
+        transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+
+        @include t.focus-ring;
 
         &:hover {
-            background-color: $bg-panel;
-            color: $text-primary;
+            background-color: var(--color-glass-strong);
+            color: var(--color-text-primary);
         }
 
         &--active {
-            background-color: rgba($accent, 0.1);
+            background-color: rgba($accent, 0.12);
+            border-color: rgba($accent, 0.3);
             color: $accent;
 
             .interview-nav__icon svg {
@@ -110,27 +118,50 @@ $severity-low: #3fb950;
         align-items: center;
         flex-shrink: 0;
     }
+
+    @include t.desktop-up {
+        width: 220px;
+        padding: 1.75rem 1rem;
+        justify-content: space-between;
+
+        .nav-content {
+            flex-direction: column;
+            overflow-x: visible;
+        }
+
+        &__label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-text-muted);
+            padding: 0 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        &__item {
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+    }
 }
 
 // ── Center Content ────────────────────────────────────────────────────────────
 .interview-content {
     flex: 1;
-    padding: 1.75rem 2rem;
+    padding: 0.5rem 1rem 2rem;
     overflow-y: auto;
     min-height: initial;
-    max-height: calc(100vh - 3rem);
-    padding-bottom: 5rem;
     align-items: flex-start;
-
-
-
-
-
-
-
 
     section {
         min-height: 100%;
+    }
+
+    @include t.desktop-up {
+        padding: 1.75rem 2rem 5rem;
+        max-height: calc(100vh - 3rem);
     }
 }
 
@@ -140,22 +171,21 @@ $severity-low: #3fb950;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid var(--color-border);
 
     h2 {
         font-size: 1.1rem;
         font-weight: 700;
-        color: $text-primary;
         margin: 0;
     }
 
     &__count {
         font-size: 0.8rem;
-        color: $text-muted;
-        background-color: $bg-panel;
+        color: var(--color-text-muted);
+        background-color: var(--color-glass);
         padding: 0.15rem 0.6rem;
         border-radius: 2rem;
-        border: 1px solid $border-color;
+        border: 1px solid var(--color-border);
     }
 }
 
@@ -167,14 +197,14 @@ $severity-low: #3fb950;
 }
 
 .q-card {
-    background-color: $bg-panel;
-    border: 1px solid $border-color;
-    border-radius: 0.6rem;
+    background-color: var(--color-glass);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    transition: border-color 0.2s;
+    transition: border-color var(--duration-base) ease;
 
     &:hover {
-            border-color: color.adjust($border-color, $lightness: 8%);
+        border-color: var(--color-border-strong);
     }
 
     &__header {
@@ -184,6 +214,7 @@ $severity-low: #3fb950;
         padding: 0.9rem 1rem;
         cursor: pointer;
         user-select: none;
+        min-height: 44px;
     }
 
     &__index {
@@ -203,14 +234,13 @@ $severity-low: #3fb950;
         margin: 0;
         font-size: 0.9rem;
         font-weight: 500;
-        color: $text-primary;
         line-height: 1.5;
     }
 
     &__chevron {
         flex-shrink: 0;
-        color: $text-muted;
-        transition: transform 0.2s;
+        color: var(--color-text-muted);
+        transition: transform var(--duration-base) ease;
         margin-top: 2px;
 
         &--open {
@@ -224,7 +254,7 @@ $severity-low: #3fb950;
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        border-top: 1px solid $border-color;
+        border-top: 1px solid var(--color-border);
         padding-top: 0.75rem;
     }
 
@@ -236,7 +266,7 @@ $severity-low: #3fb950;
         p {
             margin: 0;
             font-size: 0.835rem;
-            color: color.adjust($text-muted, $lightness: 15%);
+            color: var(--color-text-secondary);
             line-height: 1.6;
         }
     }
@@ -257,9 +287,9 @@ $severity-low: #3fb950;
         }
 
         &--answer {
-            color: #3fb950;
-            background-color: rgba(#3fb950, 0.1);
-            border: 1px solid rgba(#3fb950, 0.2);
+            color: $severity-low;
+            background-color: rgba($severity-low, 0.1);
+            border: 1px solid rgba($severity-low, 0.2);
         }
     }
 }
@@ -271,7 +301,6 @@ $severity-low: #3fb950;
     gap: 0;
     position: relative;
 
-    // vertical timeline line
     &::before {
         content: '';
         position: absolute;
@@ -291,7 +320,6 @@ $severity-low: #3fb950;
     padding: 0.75rem 0 0.75rem 3.5rem;
     position: relative;
 
-    // dot on timeline
     &::before {
         content: '';
         position: absolute;
@@ -300,7 +328,7 @@ $severity-low: #3fb950;
         width: 14px;
         height: 14px;
         border-radius: 50%;
-        background-color: $bg-card;
+        background-color: var(--color-bg-elevated);
         border: 2px solid $accent;
     }
 
@@ -324,7 +352,6 @@ $severity-low: #3fb950;
         margin: 0;
         font-size: 0.95rem;
         font-weight: 600;
-        color: $text-primary;
     }
 
     &__tasks {
@@ -340,7 +367,7 @@ $severity-low: #3fb950;
             align-items: flex-start;
             gap: 0.5rem;
             font-size: 0.845rem;
-            color: color.adjust($text-muted, $lightness: 12%);
+            color: var(--color-text-secondary);
             line-height: 1.5;
         }
     }
@@ -350,24 +377,29 @@ $severity-low: #3fb950;
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background-color: $text-muted;
+        background-color: var(--color-text-muted);
         margin-top: 8px;
     }
 }
 
 // ── Right Sidebar ─────────────────────────────────────────────────────────────
 .interview-sidebar {
-    width: 240px;
+    width: 100%;
     flex-shrink: 0;
-    padding: 1.75rem 1.25rem;
+    padding: 1.25rem 1rem 1.75rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+
+    @include t.desktop-up {
+        width: 240px;
+        padding: 1.75rem 1.25rem;
+    }
 }
 
 .sidebar-divider {
     height: 1px;
-    background-color: $border-color;
+    background-color: var(--color-border);
 }
 
 // Match Score
@@ -382,7 +414,7 @@ $severity-low: #3fb950;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: $text-muted;
+        color: var(--color-text-muted);
         margin: 0;
         align-self: flex-start;
     }
@@ -413,13 +445,12 @@ $severity-low: #3fb950;
     &__value {
         font-size: 1.6rem;
         font-weight: 800;
-        color: $text-primary;
         line-height: 1;
     }
 
     &__pct {
         font-size: 0.75rem;
-        color: $text-muted;
+        color: var(--color-text-muted);
         margin-top: -2px;
     }
 
@@ -442,7 +473,7 @@ $severity-low: #3fb950;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: $text-muted;
+        color: var(--color-text-muted);
         margin: 0;
     }
 
@@ -477,5 +508,12 @@ $severity-low: #3fb950;
         color: $severity-low;
         background-color: rgba($severity-low, 0.1);
         border-color: rgba($severity-low, 0.25);
+    }
+}
+
+// Download resume button placement inside the nav
+.interview-nav {
+    > .button {
+        width: 100%;
     }
 }

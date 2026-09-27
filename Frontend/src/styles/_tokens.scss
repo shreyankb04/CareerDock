@@ -1,0 +1,124 @@
+// ────────────────────────────────────────────────────────────────────────────
+// CareerDock Design Tokens
+// Single source of truth for color / radius / shadow / spacing values.
+// Exposed as CSS custom properties so components can theme-switch at runtime
+// without a SCSS recompile (see [data-theme="light"] overrides below).
+// ────────────────────────────────────────────────────────────────────────────
+
+$font-stack: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+// Sass-level copy of --ease-out below, needed because transition shorthand
+// values are resolved at compile time and can't pull from a CSS custom
+// property inside a comma-separated transition list in all browsers.
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+// Breakpoints (mobile-first)
+$bp-tablet: 640px;
+$bp-desktop: 1024px;
+$bp-wide: 1280px;
+
+@mixin tablet-up {
+    @media (min-width: $bp-tablet) {
+        @content;
+    }
+}
+
+@mixin desktop-up {
+    @media (min-width: $bp-desktop) {
+        @content;
+    }
+}
+
+@mixin wide-up {
+    @media (min-width: $bp-wide) {
+        @content;
+    }
+}
+
+@mixin reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
+        @content;
+    }
+}
+
+:root {
+    // ── Brand gradient ──────────────────────────────────────────────────────
+    --grad-primary: linear-gradient(135deg, #ff3ea5 0%, #8b5cf6 100%);
+    --grad-primary-soft: linear-gradient(135deg, rgba(255, 62, 165, 0.16) 0%, rgba(139, 92, 246, 0.16) 100%);
+    --color-pink: #ff3ea5;
+    --color-purple: #8b5cf6;
+    --color-violet-soft: #a78bfa;
+
+    // ── Semantic ─────────────────────────────────────────────────────────────
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #f43f5e;
+
+    // ── Surfaces (dark - default) ───────────────────────────────────────────
+    --color-bg: #05030b;
+    --color-bg-elevated: #0b0813;
+    --color-glass: rgba(255, 255, 255, 0.04);
+    --color-glass-strong: rgba(255, 255, 255, 0.07);
+    --color-border: rgba(255, 255, 255, 0.09);
+    --color-border-strong: rgba(255, 255, 255, 0.16);
+
+    // ── Text ─────────────────────────────────────────────────────────────────
+    --color-text-primary: #f5f3fb;
+    --color-text-secondary: #a8a3ba;
+    --color-text-muted: #706c85;
+    --color-text-on-accent: #ffffff;
+
+    // ── Radii ────────────────────────────────────────────────────────────────
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
+    --radius-pill: 999px;
+
+    // ── Shadows ──────────────────────────────────────────────────────────────
+    --shadow-glow-pink: 0 8px 30px rgba(255, 62, 165, 0.35);
+    --shadow-glow-pink-lg: 0 12px 45px rgba(255, 62, 165, 0.45);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+    --shadow-elevated: 0 20px 60px rgba(0, 0, 0, 0.45);
+
+    // ── Motion ───────────────────────────────────────────────────────────────
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 150ms;
+    --duration-base: 250ms;
+    --duration-slow: 450ms;
+
+    color-scheme: dark;
+}
+
+// ── Light theme override ─────────────────────────────────────────────────────
+[data-theme="light"] {
+    --color-bg: #f7f6fb;
+    --color-bg-elevated: #ffffff;
+    --color-glass: rgba(20, 12, 40, 0.035);
+    --color-glass-strong: rgba(20, 12, 40, 0.06);
+    --color-border: rgba(20, 12, 40, 0.09);
+    --color-border-strong: rgba(20, 12, 40, 0.16);
+
+    --color-text-primary: #1a1625;
+    --color-text-secondary: #574f6b;
+    --color-text-muted: #8a8299;
+    --color-text-on-accent: #ffffff;
+
+    --shadow-card: 0 4px 24px rgba(20, 12, 40, 0.08);
+    --shadow-elevated: 0 20px 60px rgba(20, 12, 40, 0.12);
+
+    color-scheme: light;
+}
+
+@mixin glass-surface {
+    background: var(--color-glass);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+@mixin focus-ring {
+    &:focus-visible {
+        outline: 2px solid var(--color-pink);
+        outline-offset: 2px;
+    }
+}
