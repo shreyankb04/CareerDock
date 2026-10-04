@@ -1,0 +1,52 @@
+# Render Blueprint for CareerDock. Optional: you can instead create the two services by hand in
+# the dashboard using the same settings (see DEPLOYMENT.md). Secret values (sync: false) are
+# prompted for / set in the dashboard and are never stored in this file.
+services:
+  # ── Backend: Node/Express web service ──────────────────────────────────────
+  - type: web
+    name: careerdock-api
+    runtime: node
+    rootDir: Backend
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: GOOGLE_GENAI_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: MENTOR_PRIMARY_MODEL
+        value: openrouter/free
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: CareerDock <noreply@careerdocks.in>
+      - key: FRONTEND_URL
+        value: https://careerdocks.in
+
+  # ── Frontend: React/Vite static site ───────────────────────────────────────
+  - type: web
+    name: careerdock-web
+    runtime: static
+    rootDir: Frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://api.careerdocks.in
+    # SPA fallback: without this, refreshing or opening /interview/123 directly returns a 404
+    # because only / maps to a real file. Render never rewrites a path that matches a real file
+    # (JS/CSS assets, favicon), so assets keep working.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

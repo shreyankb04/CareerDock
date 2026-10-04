@@ -2,6 +2,7 @@ const express = require('express')
 const authMiddleware = require('../middlewares/auth.middleware')
 const interviewController = require('../controllers/interview.controller')
 const upload = require('../middlewares/file.middleware')
+const { aiLimiter } = require('../middlewares/rateLimiter.middleware')
 
 const interviewRouter = express.Router()
 
@@ -12,7 +13,7 @@ const interviewRouter = express.Router()
  * @access private
  *
  */
-interviewRouter.post("/", authMiddleware.authUserMiddleware, upload.single("resume"), interviewController.generateInterviewReportController)
+interviewRouter.post("/", authMiddleware.authUserMiddleware, aiLimiter, upload.single("resume"), interviewController.generateInterviewReportController)
 
 /**
  * @route GET api/interview
@@ -33,6 +34,6 @@ interviewRouter.get("/report/:interviewId", authMiddleware.authUserMiddleware, i
  * @desc Generate and download a tailored resume PDF for an existing interview report
  * @access private
  */
-interviewRouter.post("/resume/pdf/:interviewReportId", authMiddleware.authUserMiddleware, interviewController.getResumePdfController)
+interviewRouter.post("/resume/pdf/:interviewReportId", authMiddleware.authUserMiddleware, aiLimiter, interviewController.getResumePdfController)
 
 module.exports = interviewRouter

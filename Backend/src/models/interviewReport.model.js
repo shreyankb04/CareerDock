@@ -133,6 +133,9 @@ const interviewReportSchema = new mongoose.Schema({
     timestamps: true
 })
 
+// Serves "list this user's reports, newest first" without an in-memory sort.
+interviewReportSchema.index({ user: 1, createdAt: -1 })
+
 const interviewReportModel = mongoose.model("InterviewReport", interviewReportSchema);
 
 module.exports = interviewReportModel;

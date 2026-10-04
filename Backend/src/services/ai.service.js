@@ -1,10 +1,5 @@
-const { GoogleGenAI } = require("@google/genai");
-const {z} = require("zod");
-const {zodToJsonSchema} = require("zod-to-json-schema")
-
-const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY,
-})
+const { z } = require("zod");
+const { generateStructured, validateWithSchema } = require("./aiProvider.service");
 
 const interviewReportSchema = z.object({
     matchScore: z.number().min(0).max(100).describe("The match score of the candidate between 0 to 100 indicating how well the canditate's profile matches the job description"), 
@@ -33,6 +28,33 @@ const interviewReportSchema = z.object({
 
 })
 
+// Extra checks before saving: the sections the UI renders must be populated.
+// (skillGaps may legitimately be empty for a very strong candidate.)
+const validatedReportSchema = interviewReportSchema.refine(
+    (r) => r.technicalQuestions.length >= 3 && r.behavioralQuestions.length >= 2 && r.preparationPlan.length >= 1,
+    { message: "Report is missing required sections" }
+)
+
+// Fix harmless slips from smaller fallback models ("High", numbers as strings).
+function normalizeReport(data) {
+    if (!data || typeof data !== "object") return data
+    const out = { ...data }
+    if (typeof out.matchScore === "string") out.matchScore = Number(out.matchScore)
+    if (Array.isArray(out.skillGaps)) {
+        out.skillGaps = out.skillGaps.map((g) =>
+            g && typeof g === "object" && typeof g.severity === "string" ? { ...g, severity: g.severity.trim().toLowerCase() } : g)
+    }
+    if (Array.isArray(out.preparationPlan)) {
+        out.preparationPlan = out.preparationPlan.map((d) =>
+            d && typeof d === "object" && typeof d.day === "string" ? { ...d, day: Number(d.day) } : d)
+    }
+    return out
+}
+
+/**
+ * Generates the interview report with Gemini (OpenRouter fallback), validated against
+ * the schema above. Throws a controlled 503 if no provider produced a valid report.
+ */
 async function generateInterviewReport({resume, selfDescription, jobDescription}){
 
     const prompt = `You are an expert interviewer so analyze the following canditate, 
@@ -44,28 +66,17 @@ async function generateInterviewReport({resume, selfDescription, jobDescription}
                     - Return ALL fields required by the provided JSON schema.
                     - Do not leave any array empty.
                     Generate an interview report for a canditate with the following details:
-        Resume: ${resume}
-        Self Description: ${selfDescription}
+        Resume: ${resume || "Not provided"}
+        Self Description: ${selfDescription || "Not provided"}
         Job Description: ${jobDescription}
         `
 
-const schema = zodToJsonSchema(interviewReportSchema);
-
-// console.log(JSON.stringify(schema, null, 2));
-
-
-
-const response = await ai.models.generateContent({
-    model: "gemini-3.6-flash",
-    contents: prompt,
-    config:{
-        responseMimeType:"application/json",
-        responseSchema: zodToJsonSchema(interviewReportSchema),
-    }
-})
-// console.log(response.text)
-return JSON.parse(response.text)
-
+    return generateStructured({
+        label: "interview-report",
+        prompt,
+        requestSchema: interviewReportSchema,
+        validate: (data) => validateWithSchema(validatedReportSchema, normalizeReport(data)),
+    })
 }
 
 module.exports = generateInterviewReport

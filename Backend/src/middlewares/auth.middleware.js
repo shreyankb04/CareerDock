@@ -11,6 +11,23 @@ async function authUserMiddleware(req, res, next) {
         })
     }
 
+    // Verify signature/expiry first so forged cookies never reach the database.
+    let decoded
+    try{
+        decoded = jwt.verify(token, process.env.JWT_SECRET)
+    } catch(err){
+        return res.status(401).json({
+            message: "Invalid token."
+        })
+    }
+
+    // Tokens issued for other purposes (e.g. password reset) must not work as a session.
+    if(decoded.purpose){
+        return res.status(401).json({
+            message: "Invalid token."
+        })
+    }
+
     const isTokenBlacklisted = await tokenBlacklistModel.findOne({
         token
     })
@@ -21,19 +38,8 @@ async function authUserMiddleware(req, res, next) {
         })
     }
 
-    try{
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
     req.user = decoded; // Attach the decoded user information to the request object
     next(); // Proceed to the next middleware or route handler
-
-    } catch(err){
-        return res.status(401).json({
-            message: "Invalid token."
-        })
-    }
-
-
 }
 
 module.exports = { authUserMiddleware}

@@ -1,10 +1,5 @@
-const { GoogleGenAI } = require("@google/genai");
 const { z } = require("zod");
-const { zodToJsonSchema } = require("zod-to-json-schema");
-
-const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY,
-});
+const { generateStructured, validateWithSchema } = require("./aiProvider.service");
 
 // Structured, resume-appropriate content. Kept deliberately close to what CareerDock
 // already has available (resume text, self description, job description, skill gaps)
@@ -32,10 +27,23 @@ const resumeContentSchema = z.object({
     })).describe("Notable projects mentioned in the resume text or self description, if any. Return an empty array if none are mentioned."),
 });
 
+// Fallback models occasionally omit arrays or send null for optional fields.
+function normalizeResume(data) {
+    if (!data || typeof data !== "object") return data
+    return {
+        ...data,
+        coreSkills: data.coreSkills ?? [],
+        experience: data.experience ?? [],
+        education: Array.isArray(data.education)
+            ? data.education.map((e) => (e && typeof e === "object" && e.year === null ? { ...e, year: undefined } : e))
+            : [],
+        projects: data.projects ?? [],
+    }
+}
+
 /**
- * @description Generates structured, professional resume content tailored to a target job,
- * using only the candidate's own data already stored in CareerDock (resume text extracted
- * from their uploaded PDF, self description, job description, and identified skill gaps).
+ * Generates structured resume content tailored to a target job, using only the
+ * candidate's own stored data. Gemini with OpenRouter fallback; controlled 503 if neither works.
  */
 async function generateResumeContent({ username, email, jobDescription, selfDescription, resumeText, skillGaps }) {
 
@@ -77,16 +85,12 @@ async function generateResumeContent({ username, email, jobDescription, selfDesc
                     ${skillGapsList}
                     `
 
-    const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(resumeContentSchema),
-        }
+    return generateStructured({
+        label: "resume-pdf",
+        prompt,
+        requestSchema: resumeContentSchema,
+        validate: (data) => validateWithSchema(resumeContentSchema, normalizeResume(data)),
     })
-
-    return JSON.parse(response.text)
 }
 
 module.exports = generateResumeContent

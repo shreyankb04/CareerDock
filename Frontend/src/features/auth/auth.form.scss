@@ -119,6 +119,102 @@
             }
         }
     }
+
+    &__error {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.4rem;
+        background: rgba(244, 63, 94, 0.1);
+        border: 1px solid rgba(244, 63, 94, 0.3);
+        color: var(--color-error);
+        font-size: 0.82rem;
+        line-height: 1.4;
+        padding: 0.65rem 0.85rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 1rem;
+
+        svg {
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+    }
+
+    &__info {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: var(--color-success);
+        font-size: 0.82rem;
+        line-height: 1.4;
+        padding: 0.65rem 0.85rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 1rem;
+    }
+
+    &__hint {
+        margin-top: 0.4rem;
+        font-size: 0.78rem;
+
+        &--weak {
+            color: var(--color-error);
+        }
+
+        &--ok {
+            color: var(--color-success);
+        }
+    }
+
+    &__forgot-link {
+        display: inline-block;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--color-pink);
+            text-decoration: underline;
+        }
+    }
+
+    &__resend {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+        background: none;
+        border: none;
+        color: var(--color-pink);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 44px;
+
+        &:disabled {
+            color: var(--color-text-muted);
+            cursor: not-allowed;
+        }
+
+        &:not(:disabled):hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__icon-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        background: var(--grad-primary-soft);
+        color: var(--color-pink);
+
+        &--success {
+            background: rgba(16, 185, 129, 0.14);
+            color: var(--color-success);
+        }
+    }
 }
 
 @include t.reduced-motion {

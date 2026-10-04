@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Sparkles, Loader2, AlertCircle } from 'lucide-react'
 import GlassCard from '../../../components/ui/GlassCard.jsx'
 import FloatingInput from '../../../components/ui/FloatingInput.jsx'
 import { PrimaryButton } from '../../../components/ui/Button.jsx'
@@ -14,14 +14,24 @@ const Login = () => {
 
     const [ email, setEmail ] = useState("")
     const [ password, setPassword ] = useState("")
+    const [ error, setError ] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const user = await handleLogin({ email, password })
-        if (user) {
+        setError("")
+
+        const result = await handleLogin({ email, password })
+
+        if (result.success) {
             navigate('/')
+        } else if (result.needsVerification) {
+            // Account exists but hasn't verified its email yet - send them
+            // straight to the verify-email page instead of a dead-end error.
+            navigate(`/verify-email?email=${encodeURIComponent(result.email || email)}`, {
+                state: { email: result.email || email }
+            })
         } else {
-            alert('Login failed. Please check your email and password.')
+            setError(result.message)
         }
     }
 
@@ -39,6 +49,12 @@ const Login = () => {
                 <h1>Welcome back</h1>
                 <p className="auth-card__subtitle">Sign in to continue building your interview strategy.</p>
 
+                {error && (
+                    <p className="auth-card__error" role="alert">
+                        <AlertCircle size={14} /> {error}
+                    </p>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <FloatingInput
                         id="email"
@@ -48,14 +64,17 @@ const Login = () => {
                         onChange={(e) => { setEmail(e.target.value) }}
                         required
                     />
-                    <FloatingInput
-                        id="password"
-                        name="password"
-                        type="password"
-                        label="Password"
-                        onChange={(e) => { setPassword(e.target.value) }}
-                        required
-                    />
+                    <div>
+                        <FloatingInput
+                            id="password"
+                            name="password"
+                            type="password"
+                            label="Password"
+                            onChange={(e) => { setPassword(e.target.value) }}
+                            required
+                        />
+                        <Link to="/forgot-password" className="auth-card__forgot-link">Forgot password?</Link>
+                    </div>
                     <PrimaryButton type="submit" disabled={loading} className="auth-card__submit">
                         {loading ? <Loader2 size={16} className="auth-card__spin" /> : null}
                         {loading ? "Signing in..." : "Login"}

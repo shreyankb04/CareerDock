@@ -5,86 +5,93 @@ const { buildResumePdfBuffer } = require("../services/pdf.service")
 const interviewReportModel = require("../models/interviewReport.model")
 const userModel = require("../models/user.model")
 
+const MAX_JOB_DESCRIPTION_CHARS = 5000 // matches the frontend textarea
+const MAX_SELF_DESCRIPTION_CHARS = 5000
+const MAX_RESUME_TEXT_CHARS = 15000
+
+// Multipart text fields normally arrive as strings, but a client can send anything.
+function asString(value) {
+    return typeof value === "string" ? value : ""
+}
+
 /**
  * @name generateInterviewReportController
- * @description Parses the uploaded resume PDF (if provided), sends the resume text +
- * job description + self description to Gemini, saves the generated report in MongoDB
- * and returns it to the client.
+ * @description Parses the uploaded resume PDF (if any), generates the report with
+ * Gemini (OpenRouter fallback), saves it and returns it. AI failures surface as a
+ * controlled 503 via the central error handler; no provider details reach the client.
  * @access Private
  */
 async function generateInterviewReportController(req, res) {
 
-    const { selfDescription, jobDescription } = req.body
+    const jobDescription = asString(req.body?.jobDescription).trim()
+    const selfDescription = asString(req.body?.selfDescription).trim()
 
-    if (!jobDescription || !jobDescription.trim()) {
-        return res.status(400).json({
-            message: "Job description is required"
-        })
+    if (!jobDescription) {
+        return res.status(400).json({ message: "Job description is required" })
+    }
+    if (jobDescription.length > MAX_JOB_DESCRIPTION_CHARS) {
+        return res.status(400).json({ message: `Job description is too long. Please keep it under ${MAX_JOB_DESCRIPTION_CHARS} characters.` })
+    }
+    if (selfDescription.length > MAX_SELF_DESCRIPTION_CHARS) {
+        return res.status(400).json({ message: `Self description is too long. Please keep it under ${MAX_SELF_DESCRIPTION_CHARS} characters.` })
+    }
+    if (!req.file && !selfDescription) {
+        return res.status(400).json({ message: "Please provide a resume or a self description" })
     }
 
-    if (!req.file && (!selfDescription || !selfDescription.trim())) {
-        return res.status(400).json({
-            message: "Please provide a resume or a self description"
-        })
-    }
-
-    // resumeContent holds the raw text extracted from the uploaded PDF resume.
-    // It stays an empty string when no resume was uploaded (selfDescription-only flow).
+    // Raw text extracted from the uploaded PDF; stays "" in the selfDescription-only flow.
     let resumeContent = ""
 
     if (req.file) {
-        let parser
+        // MIME type / extension come from the client, so also check the bytes look like a PDF.
+        if (!req.file.buffer.subarray(0, 1024).includes("%PDF-")) {
+            return res.status(422).json({ message: "Resume parsing failed. Please upload a valid PDF file." })
+        }
 
+        let parser
         try {
             parser = new PDFParse({ data: req.file.buffer })
             const parsed = await parser.getText()
-            resumeContent = parsed?.text?.trim() || ""
+            resumeContent = (parsed?.text?.trim() || "").slice(0, MAX_RESUME_TEXT_CHARS)
         } catch (error) {
-            console.log("Resume parsing failed:", error)
-            return res.status(422).json({
-                message: "Resume parsing failed. Please upload a valid PDF file."
-            })
+            console.error("Resume parsing failed:", error?.message)
+            return res.status(422).json({ message: "Resume parsing failed. Please upload a valid PDF file." })
         } finally {
             if (parser) {
                 await parser.destroy()
             }
         }
 
-        // Stop here (do NOT call Gemini / MongoDB) if the PDF produced no usable text,
-        // e.g. a scanned/image-only PDF.
+        // Do NOT call the AI / MongoDB for a PDF with no text (e.g. a scan).
         if (!resumeContent) {
-            return res.status(422).json({
-                message: "Could not extract any text from the uploaded resume. Please upload a text-based PDF."
-            })
+            return res.status(422).json({ message: "Could not extract any text from the uploaded resume. Please upload a text-based PDF." })
         }
     }
 
-    try {
-        const interviewReportByAi = await generateInterviewReport({
-            resume: resumeContent,
-            selfDescription,
-            jobDescription
-        })
+    // Throws a controlled 503 if the AI providers are unavailable (handled by errorHandler).
+    const interviewReportByAi = await generateInterviewReport({
+        resume: resumeContent,
+        selfDescription,
+        jobDescription
+    })
 
-        const interviewReport = await interviewReportModel.create({
-            user: req.user.id,
-            resume: resumeContent,
-            selfDescription,
-            jobDescription,
-            ...interviewReportByAi
-        })
+    // Fields listed explicitly (not spread) so AI output can never override `user`.
+    const interviewReport = await interviewReportModel.create({
+        user: req.user.id,
+        resume: resumeContent,
+        selfDescription,
+        jobDescription,
+        matchScore: interviewReportByAi.matchScore,
+        technicalQuestions: interviewReportByAi.technicalQuestions,
+        behavioralQuestions: interviewReportByAi.behavioralQuestions,
+        skillGaps: interviewReportByAi.skillGaps,
+        preparationPlan: interviewReportByAi.preparationPlan
+    })
 
-        res.status(201).json({
-            message: "Interview report generated successfully",
-            interviewReport
-        })
-    } catch (error) {
-        console.log("Interview report generation failed:", error)
-        res.status(502).json({
-            message: "Failed to generate the interview report. Please try again."
-        })
-    }
-
+    res.status(201).json({
+        message: "Interview report generated successfully",
+        interviewReport
+    })
 }
 
 /**
@@ -168,6 +175,10 @@ async function getResumePdfController(req, res) {
         }
 
         user = await userModel.findById(req.user.id)
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
     } catch (error) {
         console.log("Fetching data for resume PDF failed:", error)
         return res.status(400).json({
@@ -196,8 +207,14 @@ async function getResumePdfController(req, res) {
         res.setHeader("Content-Disposition", `attachment; filename="${safeFileName}_resume.pdf"`)
         res.status(200).send(pdfBuffer)
     } catch (error) {
-        console.log("Resume PDF generation failed:", error)
-        res.status(502).json({
+        console.error("Resume PDF generation failed:", error?.message)
+
+        // Controlled "AI temporarily unavailable" error from the AI provider layer.
+        if (error.statusCode === 503) {
+            return res.status(503).json({ message: error.message })
+        }
+
+        res.status(500).json({
             message: "Failed to generate the resume PDF. Please try again."
         })
     }

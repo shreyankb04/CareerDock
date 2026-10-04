@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import '../style/interview.scss'
+import '../style/mentor.scss'
 import '../../../components/ui/ui.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate, useParams } from 'react-router'
-import { Download } from 'lucide-react'
+import { Download, Sparkles as MentorIcon } from 'lucide-react'
+import InterviewChat from '../components/mentor/InterviewChat.jsx'
 
 
 
@@ -11,6 +13,7 @@ const NAV_ITEMS = [
     { id: 'technical', label: 'Technical Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>) },
     { id: 'behavioral', label: 'Behavioral Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>) },
     { id: 'roadmap', label: 'Road Map', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>) },
+    { id: 'mentor', label: 'AI Mentor', icon: (<MentorIcon size={16} />) },
 ]
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -116,7 +119,7 @@ const Interview = () => {
                 <div className='interview-divider' />
 
                 {/* ── Center Content ── */}
-                <main className='interview-content'>
+                <main className={`interview-content ${activeNav === 'mentor' ? 'interview-content--mentor' : ''}`}>
                     {activeNav === 'technical' && (
                         <section>
                             <div className='content-header'>
@@ -157,6 +160,10 @@ const Interview = () => {
                                 ))}
                             </div>
                         </section>
+                    )}
+
+                    {activeNav === 'mentor' && (
+                        <InterviewChat interviewId={interviewId} matchScore={report.matchScore} />
                     )}
                 </main>
 

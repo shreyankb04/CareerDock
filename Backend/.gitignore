@@ -1,6 +1,6 @@
 node_modules/
 
-
+# Environment files - NEVER commit real secrets. Only .env.example is tracked.
 .env
 .env.*
 !.env.example
