@@ -32,7 +32,7 @@ function validateEnv() {
     if (isProduction()) {
         const origins = getAllowedOrigins()
         if (origins.some((o) => !/^https?:\/\//i.test(o))) {
-            console.error("FRONTEND_URL must include the protocol, e.g. https://careerdocks.in")
+            console.error("FRONTEND_URL must include the protocol, e.g. https://careerdock.online")
             process.exit(1)
         }
         if (origins.some((o) => /localhost|127\.0\.0\.1/.test(o))) {

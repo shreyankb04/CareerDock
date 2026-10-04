@@ -29,9 +29,9 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
-        value: CareerDock <noreply@careerdocks.in>
+        value: CareerDock <noreply@careerdock.online>
       - key: FRONTEND_URL
-        value: https://careerdocks.in
+        value: https://careerdock.online
 
   # ── Frontend: React/Vite static site ───────────────────────────────────────
   - type: web
@@ -42,7 +42,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://api.careerdocks.in
+        value: https://api.careerdock.online
     # SPA fallback: without this, refreshing or opening /interview/123 directly returns a 404
     # because only / maps to a real file. Render never rewrites a path that matches a real file
     # (JS/CSS assets, favicon), so assets keep working.

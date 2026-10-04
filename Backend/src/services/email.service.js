@@ -1,7 +1,7 @@
 const { Resend } = require("resend")
 
 // Must be on a domain verified in Resend, e.g. "CareerDock <noreply@careerdocks.in>".
-const EMAIL_FROM = process.env.EMAIL_FROM || "CareerDock <noreply@careerdocks.in>"
+const EMAIL_FROM = process.env.EMAIL_FROM || "CareerDock <noreply@careerdock.online>"
 const EMAIL_FAILED_MESSAGE = "We couldn't send the email right now. Please try again in a few minutes."
 
 let client = null
